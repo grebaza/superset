@@ -50,7 +50,7 @@ fi
 # Install Apache Thrift
 pip_upgrade
 apk_add_repos
-apk add --no-cache thrift-dev@edge_main boost-dev
+apk add --no-cache thrift-dev@edge_comm boost-dev
 
 # Clone Arrow Repo
 if [ "$NO_GIT_CLONE" != "true" ]; then

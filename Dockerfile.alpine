@@ -68,7 +68,13 @@ RUN set -eux; \
     export NUMPY_VERSION=1.19.4; \
     export NO_INSTALL_BUILD_TOOLS=true; \
     export ARROW_VERBOSE_THIRDPARTY_BUILD=ON; \
-    /scripts/build_pyarrow.sh; \
+    /scripts/build_pyarrow.sh
+
+RUN set -eux; \
+    \
+    cd /app; \
+    pip install "setuptools<58"; \
+    export NO_INSTALL_BUILD_TOOLS=true; \
     export REQUIREMENTS_TXT=./requirements/local.txt; \
     /scripts/install_requirements.sh; \
     export REQUIREMENTS_TXT=./requirements/docker.txt; \
@@ -163,7 +169,7 @@ RUN set -eux; \
     \
     bash -c 'source /scripts/libsetup.sh && apk_add_repos'; \
     apk add --no-cache \
-        thrift-dev@edge_main
+        thrift-dev@edge_comm
 
 COPY --from=superset-py /usr/local/lib/python3.7/site-packages/ /usr/local/lib/python3.7/site-packages/
 # Copying site-packages doesn't move the CLIs, so let's copy them one by one

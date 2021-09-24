@@ -42,8 +42,8 @@ apk_add_repos() {
   local FILE='/etc/apk/repositories'
   # append lines
   lineinfile '^@edge_main .*$' '@edge_main http://dl-cdn.alpinelinux.org/alpine/edge/main' "$FILE"
-  lineinfile '^@edge_comm .*$' '@edge_main http://dl-cdn.alpinelinux.org/alpine/edge/community' "$FILE"
-  lineinfile '^@edge_test .*$' '@edge_main http://dl-cdn.alpinelinux.org/alpine/edge/testing' "$FILE"
+  lineinfile '^@edge_comm .*$' '@edge_comm http://dl-cdn.alpinelinux.org/alpine/edge/community' "$FILE"
+  lineinfile '^@edge_test .*$' '@edge_test http://dl-cdn.alpinelinux.org/alpine/edge/testing' "$FILE"
 }
 
 toolchain_install() {
