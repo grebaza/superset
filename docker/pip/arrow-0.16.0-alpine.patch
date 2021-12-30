@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,11 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
--c constraints.txt
-pip-compile-multi!=1.5.9
-pre-commit
-tox
-py>=1.10.0
-click==7.1.2
-pyparsing==2.4.7
+--- a/cpp/src/arrow/CMakeLists.txt
++++ b/cpp/src/arrow/CMakeLists.txt
+@@ -457,6 +457,7 @@ if(ARROW_WITH_BACKTRACE)
+     target_compile_definitions(${LIB_TARGET} PRIVATE ARROW_EXPORTING)
+     if(Backtrace_FOUND AND ARROW_WITH_BACKTRACE)
+       target_compile_definitions(${LIB_TARGET} PRIVATE ARROW_WITH_BACKTRACE)
++      target_link_libraries(${LIB_TARGET} PRIVATE ${Backtrace_LIBRARIES})
+     endif()
+   endforeach()
+ endif()

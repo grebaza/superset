@@ -21,7 +21,7 @@ mysqlclient==1.4.2.post1
 pillow>=8.3.1,<9
 pydruid>=0.6.1,<0.7
 pyhive[hive]>=0.6.1
-psycopg2-binary==2.8.5
+psycopg2-binary==2.8.6
 tableschema
 thrift>=0.11.0,<1.0.0
 progress>=1.5,<2

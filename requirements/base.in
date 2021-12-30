@@ -15,11 +15,12 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
--e file:.
+-c constraints.txt
+-e file:.[pinot,trino]
 pyrsistent>=0.16.1,<0.17
 zipp==3.4.1
 sasl==0.3.1
-packaging==21.0
+packaging>=21.3
 wrapt==1.12.1
 certifi==2021.5.30
 charset-normalizer==2.0.4
