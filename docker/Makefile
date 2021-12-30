@@ -33,6 +33,9 @@ IMAGE=$(REGISTRY_HOST)/$(USERNAME)/$(NAME)
 DOCKER_BUILD_CONTEXT=..
 DOCKER_FILE_PATH=$(shell dirname `pwd`)/Dockerfile.alpine
 VERSION=$(shell $(PYTHON) get_version.py)-alpine
+SIDECAR_IMAGE=$(REGISTRY_HOST)/$(USERNAME)/$(NAME)-websocket
+SIDECAR_DOCKER_BUILD_CONTEXT=../superset-websocket
+SIDECAR_DOCKER_FILE_PATH=$(shell dirname `pwd`)/superset-websocket/Dockerfile
 
 
 # HELP
@@ -51,6 +54,9 @@ help: ## This help
 build: ## Build the container
 	docker build --target lean \
 		-t $(IMAGE):$(VERSION) $(DOCKER_BUILD_CONTEXT) -f $(DOCKER_FILE_PATH)
+	docker build \
+		-t $(SIDECAR_IMAGE):$(VERSION) $(SIDECAR_DOCKER_BUILD_CONTEXT) \
+		-f $(SIDECAR_DOCKER_FILE_PATH)
 
 release: build push ## Make a release by building and pushing the `{version}` and `latest` tagged containers to Container Registry (CR)
 
@@ -58,10 +64,13 @@ release: build push ## Make a release by building and pushing the `{version}` an
 push: registry-login tag ## Publish the `{version}` and `latest` tagged containers to CR
 	docker push $(IMAGE):$(VERSION)
 	docker push $(IMAGE):latest
+	docker push $(SIDECAR_IMAGE):$(VERSION)
+	docker push $(SIDECAR_IMAGE):latest
 
 # Docker tagging
 tag: ## Generate container tags for the `{version}` and `latest` tags
 	docker tag $(IMAGE):$(VERSION) $(IMAGE):latest
+	docker tag $(SIDECAR_IMAGE):$(VERSION) $(SIDECAR_IMAGE):latest
 
 
 # HELPERS
