@@ -18,14 +18,12 @@ filelock==3.4.2
     # via
     #   tox
     #   virtualenv
-identify==2.4.1
+identify==2.4.4
     # via pre-commit
 nodeenv==1.6.0
     # via pre-commit
 packaging==21.3
-    # via
-    #   -c requirements/constraints.txt
-    #   tox
+    # via tox
 pep517==0.12.0
     # via pip-tools
 pip-compile-multi==2.4.2
@@ -56,13 +54,15 @@ toml==0.10.2
     # via
     #   pre-commit
     #   tox
-tomli==2.0.0
-    # via pep517
+tomli==1.2.3
+    # via
+    #   -c requirements/constraints.txt
+    #   pep517
 toposort==1.7
     # via pip-compile-multi
 tox==3.24.5
     # via -r requirements/integration.in
-virtualenv==20.11.2
+virtualenv==20.13.0
     # via
     #   pre-commit
     #   tox

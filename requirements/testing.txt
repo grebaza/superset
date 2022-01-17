@@ -11,16 +11,22 @@
     # via -r requirements/base.in
 astroid==2.6.6
     # via pylint
+asttokens==2.0.5
+    # via stack-data
 backcall==0.2.0
+    # via ipython
+black==21.12b0
     # via ipython
 coverage[toml]==6.2
     # via pytest-cov
-decorator==5.1.0
+decorator==5.1.1
     # via
     #   ipdb
     #   ipython
 docker==5.0.3
     # via -r requirements/testing.in
+executing==0.8.2
+    # via stack-data
 flask-testing==0.8.1
     # via -r requirements/testing.in
 freezegun==1.1.0
@@ -29,7 +35,7 @@ iniconfig==1.1.1
     # via pytest
 ipdb==0.13.9
     # via -r requirements/testing.in
-ipython==7.30.1
+ipython==8.0.0
     # via
     #   -r requirements/testing.in
     #   ipdb
@@ -43,14 +49,20 @@ matplotlib-inline==0.1.3
     # via ipython
 mccabe==0.6.1
     # via pylint
+mypy-extensions==0.4.3
+    # via black
 openapi-schema-validator==0.1.6
-    # via openapi-spec-validator
+    # via
+    #   -c requirements/constraints.txt
+    #   openapi-spec-validator
 openapi-spec-validator==0.3.1
     # via -r requirements/testing.in
 parameterized==0.8.1
     # via -r requirements/testing.in
 parso==0.8.3
     # via jedi
+pathspec==0.9.0
+    # via black
 pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
@@ -59,9 +71,11 @@ prompt-toolkit==3.0.24
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
-pyfakefs==4.5.3
+pure-eval==0.2.1
+    # via stack-data
+pyfakefs==4.5.4
     # via -r requirements/testing.in
-pygments==2.10.0
+pygments==2.11.2
     # via ipython
 pyhive[hive,presto]==0.6.4
     # via
@@ -78,6 +92,8 @@ pytest-cov==3.0.0
     # via -r requirements/testing.in
 pytest-mock==3.6.1
     # via -r requirements/testing.in
+stack-data==0.1.4
+    # via ipython
 statsd==3.3.0
     # via -r requirements/testing.in
 traitlets==5.1.1
