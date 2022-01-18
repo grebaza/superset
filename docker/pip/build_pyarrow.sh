@@ -40,6 +40,7 @@ export CFLAGS="${CFLAGS:--Os -g0}"
 export CXXFLAGS="${CXXFLAGS:--Os -g0}"
 export LDFLAGS="${LDFLAGS:--s}"
 export MAKEFLAGS="${MAKEFLAGS:--j$PARALLEL_WORKERS}"
+export NPY_NUM_BUILD_JOBS="$PARALLEL_WORKERS"
 
 
 # Install build tools
