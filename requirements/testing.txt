@@ -55,7 +55,7 @@ openapi-schema-validator==0.1.6
     # via
     #   -c requirements/constraints.txt
     #   openapi-spec-validator
-openapi-spec-validator==0.3.1
+openapi-spec-validator==0.3.2
     # via -r requirements/testing.in
 parameterized==0.8.1
     # via -r requirements/testing.in
