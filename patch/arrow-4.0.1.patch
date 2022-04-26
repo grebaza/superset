@@ -12,17 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-ARG NODE_VER=16-alpine
-FROM node:${NODE_VER}
-
-WORKDIR /home/superset-websocket
-
-COPY . .
-
-RUN npm ci
-RUN npm run build
-RUN rm -rf /var/cache/apk/* && rm -rf /tmp/*
-
-COPY ./docker-entrypoint.sh /
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["npm", "start"]
+--- a/cpp/src/arrow/CMakeLists.txt
++++ b/cpp/src/arrow/CMakeLists.txt
+@@ -524,6 +524,7 @@
+     target_compile_definitions(${LIB_TARGET} PRIVATE ARROW_EXPORTING)
+     if(Backtrace_FOUND AND ARROW_WITH_BACKTRACE)
+       target_compile_definitions(${LIB_TARGET} PRIVATE ARROW_WITH_BACKTRACE)
++      target_link_libraries(${LIB_TARGET} PRIVATE ${Backtrace_LIBRARIES})
+     endif()
+   endforeach()
+ endif()

@@ -1,0 +1,4 @@
+[registry."promise:5000"]
+http = false
+insecure = false
+ca=["/etc/docker/certs.d/promise:5000/domain.crt"]

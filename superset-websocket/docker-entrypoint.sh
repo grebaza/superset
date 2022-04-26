@@ -1,3 +1,5 @@
+#!/usr/bin/env sh
+#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -12,17 +14,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-ARG NODE_VER=16-alpine
-FROM node:${NODE_VER}
+#
+set -e
 
-WORKDIR /home/superset-websocket
+prefix=GAQ_
+[ "$LOG_LEVEL" = "debug" ] && echo "Environment variables"
+for VAR in $(env); do
+   name=$(echo "$VAR" | cut -d'=' -f1)
+   value=$(echo "$VAR" | cut -d'=' -f2)
+   if echo "$name" | grep -q "^$prefix[^#0-9].*"; then
+    new_name="${name#$prefix}"
+    export "$new_name=$value"
+    unset "$name"
+    [ "$LOG_LEVEL" = "debug" ] && echo "$new_name: $value"
+  fi
+done
 
-COPY . .
-
-RUN npm ci
-RUN npm run build
-RUN rm -rf /var/cache/apk/* && rm -rf /tmp/*
-
-COPY ./docker-entrypoint.sh /
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["npm", "start"]
+exec "$@"
