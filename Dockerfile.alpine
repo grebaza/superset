@@ -23,6 +23,8 @@ ARG PKG_OUT_DIR=/whl
 ARG BUILD_ROOT=/build
 
 FROM python:${PY_VER} AS superset-py
+ARG BUILD_ROOT
+ARG PKG_OUT_DIR
 
 RUN set -eux; \
     \
@@ -58,35 +60,37 @@ RUN set -eux; \
 
 # First, we just wanna install requirements, which will allow us to utilize the cache
 # in order to only build if and only if requirements change
-# COPY setup.py MANIFEST.in README.md /app/
-# COPY requirements/*.txt /app/requirements/
-# COPY superset-frontend/package.json /app/superset-frontend/
-# COPY docker/*.sh /scripts/
-# COPY docker/PKBUILD-pyarrow $BUILD_ROOT/
-# COPY patch/arrow-*.patch /patch/
-# WORKDIR /app
-# RUN --mount=type=cache,target=/root/.cache/pip set -eux; \
-#     \
-# # build Pyarrow
-#     REQUIREMENTS_REGEX='/^pyarrow/ s/^(pyarrow)==(.*)$/\1 \2/p' \
-#     REQUIREMENTS_FOREACH="PACKAGE=\$0 PACKAGE_VERSION=\$1 \
-#         PATCH_DIR=/patch \
-#         PKG_OUT_DIR=$PKG_OUT_DIR \
-#         PROJECT_REPO='https://github.com/apache/arrow.git' \
-#         PKG_TO_REPOTAG_REGEX='.*:(.*)' \
-#         PKG_TO_REPOTAG_REPLACEMENT='apache-arrow-\\1' \
-#         PACKAGE_BUILDER=pip \
-#         PACKAGE_SCRIPT=PKBUILD-pyarrow \
-#         /scripts/install_package.sh" \
-#     /scripts/foreach_requirement.sh; \
-#     \
-#     mkdir -p superset/static; \
-#     touch superset/static/version_info.json; \
-#     \
-#     export PIP_FIND_LINKS="$PKG_OUT_DIR"; \
-#     export NO_INSTALL_BUILD_TOOLS=true; \
-#     REQUIREMENTS_TXT=./requirements/local.txt /scripts/install_requirements.sh; \
-#     REQUIREMENTS_TXT=./requirements/docker.txt /scripts/install_requirements.sh
+COPY setup.py MANIFEST.in README.md /app/
+COPY requirements/*.txt /app/requirements/
+COPY superset-frontend/package.json /app/superset-frontend/
+COPY docker/*.sh /scripts/
+COPY docker/PKBUILD-pyarrow $BUILD_ROOT/
+COPY patch/arrow-*.patch /patch/
+WORKDIR /app
+RUN --mount=type=cache,target=/root/.cache/pip set -eux; \
+    \
+# build Pyarrow
+    REQUIREMENTS_TYPE=pip \
+    REQUIREMENTS_FILE=requirements/base.txt \
+    REQUIREMENTS_REGEX='/^pyarrow/ s/^(pyarrow)==(.*)$/\1 \2/p' \
+    REQUIREMENTS_FOREACH="PACKAGE=\$0 PACKAGE_VERSION=\$1 \
+        PATCH_DIR=/patch \
+        PKG_OUT_DIR=$PKG_OUT_DIR \
+        PROJECT_REPO='https://github.com/apache/arrow.git' \
+        PKG_TO_REPOTAG_REGEX='.*:(.*)' \
+        PKG_TO_REPOTAG_REPLACEMENT='apache-arrow-\\1' \
+        PACKAGE_BUILDER=pip \
+        PACKAGE_SCRIPT=PKBUILD-pyarrow \
+        /scripts/install_package.sh" \
+    /scripts/foreach_requirement.sh; \
+    \
+    mkdir -p superset/static; \
+    touch superset/static/version_info.json; \
+    \
+    export PIP_FIND_LINKS="$PKG_OUT_DIR"; \
+    export NO_INSTALL_BUILD_TOOLS=true; \
+    REQUIREMENTS_TXT=./requirements/local.txt /scripts/install_requirements.sh; \
+    REQUIREMENTS_TXT=./requirements/docker.txt /scripts/install_requirements.sh
 
 
 ######################################################################
@@ -169,7 +173,7 @@ RUN set -eux; \
     \
     rm -rf /var/cache/apk/*
 
-COPY ./docker/pip/ /scripts
+COPY ./docker/ /scripts
 
 COPY --from=superset-py /usr/local/lib/python3.8/site-packages/ /usr/local/lib/python3.8/site-packages/
 # Copying site-packages doesn't move the CLIs, so let's copy them one by one
@@ -187,8 +191,6 @@ RUN set -eux; \
     chown -R superset:superset *; \
     pip install --no-cache-dir -e .
 
-COPY ./docker/docker-entrypoint.sh /usr/bin/
-
 
 USER superset
 
@@ -196,7 +198,6 @@ HEALTHCHECK CMD curl -f "http://localhost:$SUPERSET_PORT/health"
 
 EXPOSE ${SUPERSET_PORT}
 
-ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]
 
 ######################################################################
 # Dev image...
