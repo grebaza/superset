@@ -32,8 +32,8 @@ RUN set -eux; \
     \
     apk update; \
     apk add --no-cache \
-      patch sed bash \
-      autoconf g++ git unzip cmake make linux-headers \
+      patch sed bash findutils coreutils \
+      autoconf g++ git unzip cmake make linux-headers rust cargo \
       flex bison \
       curl \
       samurai \
@@ -62,17 +62,34 @@ RUN set -eux; \
 # in order to only build if and only if requirements change
 COPY setup.py MANIFEST.in README.md /app/
 COPY requirements/*.txt /app/requirements/
-COPY superset-frontend/package.json /app/superset-frontend/
 COPY docker/*.sh /scripts/
-COPY docker/PKBUILD-pyarrow $BUILD_ROOT/
 COPY patch/arrow-*.patch /patch/
+COPY docker/PKBUILD-pyarrow /app/
+COPY superset-frontend/package.json /app/superset-frontend/
 WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/pip set -eux; \
     \
-# build Pyarrow
-    REQUIREMENTS_TYPE=pip \
+# build Sqloxide
+    python3 -m pip install --no-cache-dir setuptools_rust; \
+    REQUIREMENTS_TYPE=python \
+    REQUIREMENTS_PROJECT=sqloxide \
     REQUIREMENTS_FILE=requirements/base.txt \
-    REQUIREMENTS_REGEX='/^pyarrow/ s/^(pyarrow)==(.*)$/\1 \2/p' \
+    REQUIREMENTS_SED='s/^(sqloxide)==(.*)$/\1|\2|/p' \
+    REQUIREMENTS_FOREACH="PACKAGE=\$0 PACKAGE_VERSION=\$1 \
+        PATCH_DIR=/patch \
+        PKG_OUT_DIR=$PKG_OUT_DIR \
+        PROJECT_REPO='https://github.com/wseaton/sqloxide.git' \
+        PKG_TO_REPOTAG_REGEX='.*:(.*)' \
+        PKG_TO_REPOTAG_REPLACEMENT='v\\1' \
+        PACKAGE_BUILDER=pip \
+        /scripts/install_pkg.sh" \
+    /scripts/foreach_requirement.sh; \
+    \
+# build Pyarrow
+    REQUIREMENTS_TYPE=python \
+    REQUIREMENTS_PROJECT=pyarrow \
+    REQUIREMENTS_FILE=requirements/base.txt \
+    REQUIREMENTS_SED='/^pyarrow/ s/^(pyarrow)==(.*)$/\1|\2|/p' \
     REQUIREMENTS_FOREACH="PACKAGE=\$0 PACKAGE_VERSION=\$1 \
         PATCH_DIR=/patch \
         PKG_OUT_DIR=$PKG_OUT_DIR \
@@ -81,7 +98,7 @@ RUN --mount=type=cache,target=/root/.cache/pip set -eux; \
         PKG_TO_REPOTAG_REPLACEMENT='apache-arrow-\\1' \
         PACKAGE_BUILDER=pip \
         PACKAGE_SCRIPT=PKBUILD-pyarrow \
-        /scripts/install_package.sh" \
+        /scripts/install_pkg.sh" \
     /scripts/foreach_requirement.sh; \
     \
     mkdir -p superset/static; \
@@ -146,6 +163,7 @@ RUN set -eux; \
     \
     apk update; \
     apk add --no-cache \
+        findutils coreutils \
         bash \
         curl \
         libstdc++ \

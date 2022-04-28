@@ -95,6 +95,9 @@ PKG_SCRIPT="$PACKAGE_SCRIPT"
 # phase: package
 : "${PKG_OUT_DIR:=/tmp/pkg}"
 
+# phase: install
+: "${NO_PKG_INSTALL:=true}"
+
 # Exports for builder/compiler usage
 export CFLAGS="${CFLAGS:--O2 -g0}"
 export CXXFLAGS="${CXXFLAGS:--O2 -g0}"
@@ -241,7 +244,10 @@ declare -A package_commands=(
   ["maven"]="package_maven"
 )
 package_pip(){
-  python -m build --wheel --outdir "$PKG_OUT_DIR"
+  mkdir -p "$PKG_OUT_DIR"
+  [[ -f build.py || -d build ]] \
+    && python3 setup.py bdist_wheel -d"$PKG_OUT_DIR" \
+    || python3 -m build --outdir="$PKG_OUT_DIR"
 }
 package_maven(){
   :

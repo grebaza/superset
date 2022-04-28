@@ -100,7 +100,7 @@ case "$REQUIREMENTS_TYPE" in
     log_level_3 "$REQUIREMENTS_SED"
     sed -En "$REQUIREMENTS_SED" "$REQUIREMENTS_FILE" | \
     while IFS= read -r line; do
-      echo "$line" | xargs -r -d"'$REQUIREMENTS_FOREACH_ARGS_DELIM'" \
+      echo "$line" | xargs -r -d"$REQUIREMENTS_FOREACH_ARGS_DELIM" \
         sh -c "$REQUIREMENTS_FOREACH"
     done
     ;;

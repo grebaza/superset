@@ -41,9 +41,6 @@ IMAGE_BUILD_CACHE=$(IMAGE)-build-cache
 IMAGE_VERSION=$(shell $(PYTHON) get_version.py)-alpine
 DOCKER_BUILD_CONTEXT=..
 DOCKER_FILE_PATH=$(shell dirname `pwd`)/Dockerfile.alpine
-SIDECAR_IMAGE=$(REGISTRY_HOST)/$(USERNAME)/$(NAME)-websocket
-SIDECAR_DOCKER_BUILD_CONTEXT=../superset-websocket
-SIDECAR_DOCKER_FILE_PATH=$(shell dirname `pwd`)/superset-websocket/Dockerfile
 BUILDER_FILE ?= .builder_name
 REGISTRY_HOSTNAME = $(call get_hostname, $(REGISTRY_HOST))
 
@@ -97,6 +94,11 @@ endif
 		$(BUILDER_CACHE_ARGS) \
 		$(DOCKER_BUILD_CONTEXT)
 	$(BUILDER_POST_CMD)
+
+build-sidecar: ## Build Python wheels image --help
+	$(MAKE) build IMAGE=$(IMAGE)-websocket \
+	DOCKER_BUILD_CONTEXT=../superset-websocket \
+	DOCKER_FILE_PATH=$(shell dirname `pwd`)/superset-websocket/Dockerfile
 
 # Docker push
 push: registry-login ## Publish the `{version}` and `latest` tagged images to the CR
