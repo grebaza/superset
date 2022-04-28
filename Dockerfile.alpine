@@ -60,14 +60,17 @@ RUN set -eux; \
 
 # First, we just wanna install requirements, which will allow us to utilize the cache
 # in order to only build if and only if requirements change
+COPY ./requirements/*.txt  /app/requirements/
 COPY setup.py MANIFEST.in README.md /app/
-COPY requirements/*.txt /app/requirements/
+COPY superset-frontend/package.json /app/superset-frontend/
 COPY docker/*.sh /scripts/
 COPY patch/arrow-*.patch /patch/
 COPY docker/PKBUILD-pyarrow /app/
-COPY superset-frontend/package.json /app/superset-frontend/
 WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/pip set -eux; \
+    \
+    mkdir -p superset/static; \
+    touch superset/static/version_info.json; \
     \
 # build Sqloxide
     python3 -m pip install --no-cache-dir setuptools_rust; \
@@ -101,9 +104,6 @@ RUN --mount=type=cache,target=/root/.cache/pip set -eux; \
         /scripts/install_pkg.sh" \
     /scripts/foreach_requirement.sh; \
     \
-    mkdir -p superset/static; \
-    touch superset/static/version_info.json; \
-    \
     export PIP_FIND_LINKS="$PKG_OUT_DIR"; \
     export NO_INSTALL_BUILD_TOOLS=true; \
     REQUIREMENTS_TXT=./requirements/local.txt /scripts/install_requirements.sh; \
@@ -124,7 +124,7 @@ ENV BUILD_CMD=${NPM_BUILD_CMD}
 # NPM ci first, as to NOT invalidate previous steps except for when package.json changes
 RUN mkdir -p /app/superset-frontend && mkdir -p /app/superset/assets
 COPY ./docker/frontend-mem-nag.sh /
-COPY ./superset-frontend/package* /app/superset-frontend/
+COPY ./superset-frontend /app/superset-frontend
 WORKDIR /app/superset-frontend
 RUN set -eux; \
     \
@@ -132,9 +132,7 @@ RUN set -eux; \
     /frontend-mem-nag.sh; \
     npm ci
 
-# Next, copy in the rest and let webpack do its thing
-COPY ./superset-frontend /app/superset-frontend
-# This is BY FAR the most expensive step (thanks Terser!)
+# This seems to be the most expensive step
 RUN set -eux; \
     \
     npm run ${BUILD_CMD}; \
@@ -152,7 +150,7 @@ ENV LANG=C.UTF-8 \
     FLASK_APP="superset.app:create_app()" \
     PYTHONPATH="/app/pythonpath" \
     SUPERSET_HOME="/app/superset_home" \
-    SUPERSET_PORT=8080
+    SUPERSET_PORT=8088
 
 RUN set -eux; \
     \
@@ -191,7 +189,7 @@ RUN set -eux; \
     \
     rm -rf /var/cache/apk/*
 
-COPY ./docker/ /scripts
+COPY ./docker/ /app/docker/
 
 COPY --from=superset-py /usr/local/lib/python3.8/site-packages/ /usr/local/lib/python3.8/site-packages/
 # Copying site-packages doesn't move the CLIs, so let's copy them one by one
@@ -207,8 +205,13 @@ WORKDIR /app
 RUN set -eux; \
     \
     chown -R superset:superset *; \
-    pip install --no-cache-dir -e .
+    pip install --no-cache-dir -e .;\
+    flask fab babel-compile --target superset/translations
 
+
+COPY ./docker/run-server.sh /usr/bin/
+
+RUN chmod a+x /usr/bin/run-server.sh
 
 USER superset
 
@@ -216,6 +219,7 @@ HEALTHCHECK CMD curl -f "http://localhost:$SUPERSET_PORT/health"
 
 EXPOSE ${SUPERSET_PORT}
 
+CMD ["/usr/bin/run-server.sh"]
 
 ######################################################################
 # Dev image...
