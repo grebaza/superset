@@ -33,7 +33,7 @@ attrs==21.4.0
     #   trio
 babel==2.10.1
     # via flask-babel
-backoff==2.0.0
+backoff==2.0.1
     # via apache-superset
 billiard==3.6.4.0
     # via celery
@@ -66,7 +66,7 @@ cron-descriptor==1.2.24
     # via apache-superset
 croniter==1.3.4
     # via apache-superset
-cryptography==37.0.0
+cryptography==37.0.1
     # via
     #   apache-superset
     #   pyopenssl
@@ -100,7 +100,7 @@ flask-babel==2.0.0
     # via flask-appbuilder
 flask-caching==1.10.1
     # via apache-superset
-flask-compress==1.11
+flask-compress==1.12
     # via apache-superset
 flask-jwt-extended==3.25.1
     # via flask-appbuilder
@@ -177,8 +177,9 @@ mako==1.2.0
     # via alembic
 markdown==3.3.6
     # via apache-superset
-markupsafe==2.1.1
+markupsafe==2.0.1
     # via
+    #   apache-superset
     #   jinja2
     #   mako
     #   wtforms

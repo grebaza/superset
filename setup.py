@@ -67,6 +67,7 @@ setup(
         "sqlalchemy.dialects": ["trinonative = sqlalchemy_trino.dialect:TrinoDialect"],
     },
     install_requires=[
+        "MarkupSafe==2.0.1",
         "backoff>=1.8.0",
         "bleach>=3.0.2, <4.0.0",
         "cachelib>=0.4.1,<0.5",
